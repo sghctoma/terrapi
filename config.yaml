@@ -1,0 +1,50 @@
+connection_string: postgresql://terrap:terrapi@localhost:5432/terrapi
+
+sensor_devices:
+    - type: bme280.BME280
+      name: bme280_cool
+      description: Temperature and humidity on the cool side of enclosure
+      schedule: 5
+      address: 0x76
+
+    - type: bme280.BME280
+      name: bme280_warm
+      description: Temperature and humidity on the warm side of enclosure
+      schedule: 5
+      address: 0x77
+
+controlled_devices:
+    - type: thermostat.Thermostat
+      name: thermostat
+      sensor: bme280_cool
+      temperatures:
+          - time: "-11"
+            temperature: "20-25"
+          - time: "11-15"
+            temperature: "30-35"
+          - time: "15-20"
+            temperature: "25-30"
+          - time: "20-"
+            temperature: "20-25"
+      controller:
+            type: controller.GPIOSwitch
+            reversed: True
+            gpio_pin: 13
+
+    - type: light.Lightswitch
+      name: daylight
+      on_schedule: "0 8 * * *"
+      off_schedule: "0 20 * * *"
+      controller:
+            type: controller.GPIOSwitch
+            reversed: True
+            gpio_pin: 5
+
+    - type: light.Lightswitch
+      name: uv
+      on_schedule: "0 11 * * *"
+      off_schedule: "0 15 * * *"
+      controller:
+            type: controller.GPIOSwitch
+            reversed: True
+            gpio_pin: 6
