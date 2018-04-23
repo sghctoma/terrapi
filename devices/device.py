@@ -16,6 +16,11 @@ class Device():
     """
     Generic device class that provides a factory interface to create device
     instances from configuration.
+
+    :config type: The device type in the format `module.class` relative to the
+        `devices` package
+    :config name: An arbitrary, but unique name
+    :config description: A short description that is stored in the database
     """
     def __init__(self, app, config):
         """
@@ -54,6 +59,8 @@ class Device():
 class SensorDevice(Device, ABC):
     """
     Abstract class that represents a sensor device.
+
+    :config schedule: Period in minutes or cron-style schedule for measurements.
     """
     def __init__(self, app, config, sensor_types):
         """

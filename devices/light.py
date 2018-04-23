@@ -6,6 +6,12 @@ from devices.device import Device
 
 
 class Lightswitch(Device):
+    """
+    Light on-off switch implementation.
+
+    :config off_schedule: Lights off schedule.
+    :config on_schedule: Lights on schedule.
+    """
     def __init__(self, app, config):
         super().__init__(app, config)
         self._setup_schedule(config)
