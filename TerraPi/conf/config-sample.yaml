@@ -1,0 +1,49 @@
+sensor_devices:
+    - type: dummy.RandomTemperatureHumidity
+      name: random
+      schedule: 1
+      
+controlled_devices:
+    - type: light.Lightswitch
+      on_schedule: "*/2 * * * *"
+      off_schedule: "*/3 * * * *"
+      controller:
+          type: controller.GPIOSwitch
+          gpio_pin: 13
+
+    - type: thermostat.Thermostat
+      sensor: random
+      temperatures:
+          - time: "-10"
+            temperature: "20-22"
+          - time: "10-16"
+            temperature: "25-30"
+          - time: "16-"
+            temperature: "20-22"
+      controller:
+          type: controller.GPIOSwitch
+          gpio_pin: 14
+
+logging:
+    version: 1
+    disable_existing_loggers: False
+    formatters:
+        brief:
+            format: '%(levelname)-8s: %(name)-15s: %(message)s'
+        precise:
+            format: '%(asctime)s %(name)-15s %(levelname)-8s %(message)s'
+    handlers:
+        console:
+            class : logging.StreamHandler
+            formatter: brief
+            level: INFO
+            stream  : ext://sys.stdout
+        file:
+            class : logging.handlers.RotatingFileHandler
+            formatter: precise
+            filename: terrapi.log
+            maxBytes: 1024
+            backupCount: 3
+    root:
+        level: DEBUG
+        handlers  : [console]
