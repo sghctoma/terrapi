@@ -33,7 +33,7 @@ class Thermostat(Device):
                 self._temp_ranges[i] = (temp_min, temp_max)
 
         if 'x' in self._temp_ranges.values():
-            raise AttributeError("Temperature ranges for {} should cover an \
+            raise ValueError("Temperature ranges for {} should cover an \
                     entire day (24 hours).".format(self.name))
 
     def check_temp(self, temperature):

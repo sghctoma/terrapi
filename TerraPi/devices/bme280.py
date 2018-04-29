@@ -18,7 +18,7 @@ class BME280(SensorDevice):
             SensorType.pressure])
         self._address = config.get('address', 0x76)
         if self._address not in [0x76, 0x77]:
-            raise AttributeError("BME280 I2C address can only be 0x76 or 0x77!")
+            raise ValueError("BME280 I2C address can only be 0x76 or 0x77!")
 
         self._bus = smbus2.SMBus(1)
         self._calibration_params = bme280.load_calibration_params(
