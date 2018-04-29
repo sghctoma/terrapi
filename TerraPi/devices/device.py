@@ -59,18 +59,28 @@ class Device():
         try:
             m,c = config.get('type','').split('.')
             clazz = getattr(importlib.import_module('TerraPi.devices.'+m), c)
-            device = clazz(app, config)
-        except AttributeError as ex:
-            logging.error(ex)
-        except ImportError as ex:
-            logging.error("Class \"%s\" could not be loaded!" % config['type'])
-        except KeyError as ex:
-            logging.error("Missing config value \"%s\" from %s!" % (ex, config))
+        except KeyError:
+            logging.error("Missing type from {}.".format(config))
         except ValueError:
-            logging.error("Device type incorrectly specified in %s!" % config)
-        except Exception as ex:
-            logging.error("Unknown error while creating device %s!" % config, ex)
-        
+            logging.error("Incorrect type format {}.".format(config['type']))
+        except (ImportError, AttributeError):
+            logging.error("Device {} could not be imported.".
+                    format(config['type']))
+        except Exception as e:
+            logging.error("Unknown error while loading device from {}: {}".
+                    format(config, e))
+
+        # XXX: I want to handle errors raised inside individual device modules
+        # separately from errors happening while loading device classes. Using
+        # two try/except blocks may not be the best solution, I have to look
+        # into this further. (Maybe custom error classes would be better?)
+        if clazz:
+            try:
+                device = clazz(app, config)
+            except:
+                logging.error("Could not create device instance from {}: {}".
+                        format(config, e))
+
         return device
 
 class SensorDevice(Device, ABC):

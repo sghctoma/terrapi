@@ -45,7 +45,9 @@ setup(
         'RPi.bme280',
         'RPi.GPIO',
         'SQLAlchemy',
+        'pysispm',
         'pytz',
+        'pyusb'
         'tzlocal',
     ],
     package_data={
