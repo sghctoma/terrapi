@@ -14,8 +14,9 @@ class Thermostat(Device):
         s = config['sensor']
         sensors = [d for d in self._app.sensor_devices if d.name==s]
         if not sensors:
-            raise AttributeError("%s tried to set a callback for %s, which \
-                    does not exist!" % (self.name, s))
+            raise AttributeError(
+                    "{} tried to set a callback for non-existing sensor {}.".
+                    format((self.name, s)))
 
         sensors[0].add_callback(self.check_temp, SensorType.temperature)
 
@@ -32,17 +33,17 @@ class Thermostat(Device):
                 self._temp_ranges[i] = (temp_min, temp_max)
 
         if 'x' in self._temp_ranges.values():
-            raise AttributeError("Temperature ranges for %s should cover an \
-                    entire day (24 hours)!" % self.name)
+            raise AttributeError("Temperature ranges for {} should cover an \
+                    entire day (24 hours).".format(self.name))
 
     def check_temp(self, temperature):
         current_hour = datetime.now().hour
         tmin, tmax = self._temp_ranges[current_hour]
         if temperature < tmin:
-            logging.info('Switching on thermostat "%s" at %0.2fC.', self.name,
-                    temperature)
+            logging.info('Switching on thermostat {} at {:.2f}C.'.format(
+                self.name, temperature))
             self._controller.switch_on()
         if temperature > tmax:
-            logging.info('Switching off thermostat "%s" at %0.2fC.', self.name,
-                    temperature)
+            logging.info('Switching off thermostat {} at {:.2f}C.'.format(
+                self.name, temperature))
             self._controller.switch_off()

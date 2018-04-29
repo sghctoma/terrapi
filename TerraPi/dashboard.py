@@ -144,7 +144,7 @@ def get_connection_string():
     if not connection_string:
         logging.info("Database configuration not found, using SQLite.")
         database = pkg_resources.resource_filename('TerraPi','data/terrapi.db')
-        connection_string = 'sqlite:///%s' % database
+        connection_string = 'sqlite:///{}'.format(database)
 
     return connection_string
 

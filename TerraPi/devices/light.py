@@ -25,9 +25,9 @@ class Lightswitch(Device):
                 trigger=self._parse_trigger(sched_off))
 
     def _switch_off(self):
-        logging.info('Switching off light "%s".', self.name)
+        logging.info("Switching off light {}.".format(self.name))
         self._controller.switch_off()
 
     def _switch_on(self):
-        logging.info('Switching on light "%s".', self.name)
+        logging.info("Switching on light {}.".format(self.name))
         self._controller.switch_on()

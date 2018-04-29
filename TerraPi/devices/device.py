@@ -33,7 +33,7 @@ class Device():
         self.description = config.get('description')
 
         self._app = app
-        logging.info('Created %s device with the name %s.' % (
+        logging.info('Created {} device with the name {}.'.format(
             classname, self.name))
 
     def _parse_trigger(self, schedule):
@@ -152,8 +152,8 @@ class SensorDevice(Device, ABC):
             else:
                 self._callbacks[sensor_type] = [callback]
         else:
-            logging.warn("Trying to add %s callback to %s, but this \
-                    device has no such sensor!" % (sensor_type, self.name))
+            logging.warn("Trying to add {} callback to {}, but this \
+                    device has no such sensor!".format(sensor_type, self.name))
 
     def _refresh(self):
         """Handles database insertion and calls callbacks."""
