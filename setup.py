@@ -42,11 +42,11 @@ setup(
         'Adafruit_DHT',
         'APScheduler',
         'PyYAML',
+        'RPi.bme280',
         'RPi.GPIO',
         'SQLAlchemy',
         'pytz',
-        'smbus',
-        'tzlocal'
+        'tzlocal',
     ],
     package_data={
         '': ['conf/config-sample.yaml', 'data/.db_placeholder'],

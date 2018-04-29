@@ -1,6 +1,8 @@
+import smbus2
+import bme280
+
 from ..db import SensorType, Sensor
 from .device import SensorDevice
-from ..lib.bme280 import readBME280All
 
 
 class BME280(SensorDevice):
@@ -18,10 +20,14 @@ class BME280(SensorDevice):
         if self._address not in [0x76, 0x77]:
             raise AttributeError("BME280 I2C address can only be 0x76 or 0x77!")
 
+        self._bus = smbus2.SMBus(1)
+        self._calibration_params = bme280.load_calibration_params(
+                self._bus, self._address)
+
     def _measure(self):
-        t,p,h = readBME280All(addr=self._address)
+        data = bme280.sample(self._bus, self._address, self._calibration_params)
         return [
-            (SensorType.temperature, t),
-	    (SensorType.humidity, h),
-	    (SensorType.pressure, p)
+            (SensorType.temperature, data.temperature),
+	    (SensorType.humidity, data.humidity),
+	    (SensorType.pressure, data.pressure)
 	]
