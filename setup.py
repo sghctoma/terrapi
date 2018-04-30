@@ -14,6 +14,30 @@ from setuptools.command.install import install
 from setuptools import setup, find_packages
 
 
+class CustomInstall(install):
+    """
+    The sole purpose of this class is to make '--without-dashboard' a valid
+    installation option.
+    """
+
+    user_options =  install.user_options + [
+            ('without-dashboard', None, "Install without the dashboard"),
+    ]
+
+    def initialize_options(self):
+        install.initialize_options(self)
+        self.without_dashboard = None
+
+    def finalize_options(self):
+        install.finalize_options(self)
+
+    def run(self):
+        # XXX:  https://stackoverflow.com/questions/21915469/python-setuptools-install-requires-is-ignored-when-overriding-cmdclass
+        #       https://github.com/pypa/setuptools/issues/456
+        #install.run(self)
+        install.do_egg_install(self)
+
+
 class InstallRules(Command):
     """
     A custom command to install udev (for Linux) or devd (for FreeBSD) rules
@@ -61,11 +85,48 @@ def read_file(filename):
     with open(filename, 'r') as f:
         return f.read()
 
+
 def console_scripts():
     s = ['terrapi = TerraPi.terrapi:main']
     if '--without-dashboard' not in sys.argv:
-        s.append('terrapi-dashboard = TerraPi.dashboard:main [dashboard]')
+        # see the XXX in install_requires()!
+        #s.append('terrapi-dashboard = TerraPi.dashboard:main [dashboard]')
+        s.append('terrapi-dashboard = TerraPi.dashboard:main')
     return s
+
+
+def install_requires():
+    """
+    XXX: Adding terrapi-dashboard to the entry_points['console_scripts'] list
+    does not install the 'dashboard' extra, as I would've expected. Until I
+    can't figure out how this is supposed to work, I am merging
+    extras_require['dashboard'] with install_requires in this function.
+    """
+
+    install_requires = [
+        'Adafruit_DHT;(platform_machine=="armv6l" or platform_machine=="armv7l") and platform_system=="Linux"',
+        'APScheduler',
+        'PyYAML',
+        'RPi.bme280',
+        'RPi.GPIO;(platform_machine=="armv6l" or platform_machine=="armv7l") and platform_system=="Linux"',
+        'SQLAlchemy',
+        'pysispm',
+        'pyusb'
+    ]
+    extras_require = {
+        'dashboard': [
+            'dash==0.21.0',
+            'dash-renderer==0.12.1',
+            'dash-html-components==0.10.0',
+            'dash-core-components==0.22.1',
+            'plotly==2.5.1',
+            'pytz',
+            'tzlocal',
+        ]
+    }
+    if '--without-dashboard' not in sys.argv:
+        install_requires = install_requires + extras_require['dashboard']
+    return install_requires
 
 
 setup(
@@ -97,6 +158,7 @@ setup(
     keywords='terrarium automation thermostat sensor',
     packages=find_packages(),
     cmdclass={
+        'install': CustomInstall,
         'install_rules': InstallRules,
     },
     
@@ -107,27 +169,7 @@ setup(
     dependency_links=[
         'git+https://github.com/adafruit/Adafruit_Python_DHT.git#egg=Adafruit_DHT',
     ],
-    install_requires=[
-        'Adafruit_DHT;(platform_machine=="armv6l" or platform_machine=="armv7l") and platform_system=="Linux"',
-        'APScheduler',
-        'PyYAML',
-        'RPi.bme280',
-        'RPi.GPIO',
-        'SQLAlchemy',
-        'pysispm',
-        'pyusb'
-    ],
-    extras_require={
-        'dashboard': [
-            'dash==0.21.0',
-            'dash-renderer==0.12.1',
-            'dash-html-components==0.10.0',
-            'dash-core-components==0.22.1',
-            'plotly',
-            'pytz',
-            'tzlocal',
-        ]
-    },
+    install_requires=install_requires(),
     package_data={
         '': ['conf/config-sample.yaml', 'data/.db_placeholder'],
     },
