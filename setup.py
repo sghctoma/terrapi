@@ -51,15 +51,8 @@ class InstallRules(Command):
             execute(lambda: call(self.fbsd_create_group), [],
                     "Creating sispmctl group")
             execute(lambda: call(self.devd_restart), [], "Restarting devd")
-
-
-class TerraPiInstall(install):
-    def run(self):
-        install.run(self)
-        if platform.system() == 'Linux':
-            self.run_command('udev_rules')
-        elif platform.system() == 'FreeBSD':
-            self.run_command('devd_rules')
+        else:
+            print("Not FreeBSD or Linux, nothing to do.")
 
 
 def read_file(filename):
@@ -97,8 +90,7 @@ setup(
     keywords='terrarium automation thermostat sensor',
     packages=find_packages(),
     cmdclass={
-        'rules': InstallRules,
-        'install': TerraPiInstall,
+        'install_rules': InstallRules,
     },
     
     # Need this because pysispm's setup.py imports sispm, which imports usb, so

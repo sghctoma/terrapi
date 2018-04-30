@@ -16,8 +16,7 @@ My initial goal was to to create something that is
 * easily extendable with new sensors, etc.
 
 **WARNING**: *Please note that this is by no means "production ready"! I am using it to
-control my enclosure, but it's still experimental. There is no proper error
-handling, no config validation, no installer, etc.
+control my enclosure, but it's still experimental.*
 
 Architecture
 ----
@@ -42,7 +41,7 @@ Installation
 ----
 
 TerraPi is a Python program so you are going to need Python, obviously. I wrote
-it for Python 3, and I have no idea if it works with 2.
+it for Python 3, and it was not tested with Python 2.
 
 To install the program you need to get the repo, and run setup.py:
 
@@ -52,10 +51,27 @@ pi@raspberrypi:~ $ cd terrapi
 pi@raspberrypi:~ $ python3 setup.py install
 ```
 
-This will install all dependencies, and create to scripts:
+This will install all dependencies, and create two scripts:
 
-* terrapi: the main program
-* terrapi-dashboard: a web dashboard to show measurement diagrams
+* `terrapi`: the main program
+* `terrapi-dashboard`: a web dashboard to show interactive measurement diagrams.
+  This script is completely decoupled from the TerraPi daemon, it just uses the
+  same database. The databse connection string is read from the TerraPi
+  configuration.
+
+You can opt-out of installing the latter by using the `--without-dashboard`
+switch:
+
+```
+pi@raspberrypi:~ $ python3 setup.py install --without-dashboard
+```
+
+You can run TerraPi right after installing, but the provided sample
+configuration only spits random values into the database, and switches a GPIO on
+and off. You will learn how to set up your sensors and other devices in the
+[Configuration](#configuration) section.
+
+### Additional steps for databases other than SQLite
 
 TerraPi uses a local SQLite database by default, but you can use any database
 servers supported by SQLAlchemy. In order to do so, you have to set up a
@@ -76,9 +92,24 @@ GRANT
 postgres=#
 ```
 
-You can run TerraPi right after installing, but the provided sample
-configuration only spits random values into the database, and switches a GPIO on
-and off. You probably want something more from this.
+### Additional steps for Energenie USB power switches
+
+If you want to use the Energenie USB power switches, and don't want to run
+TerraPi as root (which I strongly suggest), you are going to need to install the
+udev (for Linux) or devd (for FreeBSD) rules, and create the `sispmctl` group.
+The `install_rules` setup command does this for you:
+
+```
+pi@raspberrypi:~ $ sudo python3 setup.py install_rules
+```
+
+After this you will still need to add the user you plan to run TerraPi with to
+the `sispmctl` group:
+
+```
+pi@raspberrypi:~ $ sudo usermod -a -G sispmctl terrapi
+```
+
 
 Configuration
 ----
@@ -121,19 +152,19 @@ Setting | Description
 `name` | An arbitrary, but unique name.<br />Default is <module.class>_<type4 UUID>.
 `description` | A short description that is stored in the database along with the name and type of the sensor.
 
-### Sensor Device common settings
+### Sensor device common settings
 
 Setting | Description
 --- | ---
 `schedule` | It's either a number, or a cron-style schedule specification. In case it's a number, it is interpreted as a period in minutes, and in case of a cron-style schedule specification, please refer to `man 5 crontab`. Jobs are automatically added to the scheduler, device module writers do not need to bother with it (they just need to subclass `SensorDevice`).<br />Default is a 5 minute period.
 
-### Controlled Device common settings
+### Controlled device common settings
 
 Setting | Description
 --- | ---
 **`controller`** | What kind of *Controller Device* to use. Currently only the `controller.GPIOSwitch` is implemented, which simply uses a GPIO to control a device (probably through a relay).
 
-### Device-specific settings
+### Sensor devices
 
 #### bme280.BME280
 
@@ -155,6 +186,8 @@ Setting | Description
 --- | ---
 **`gpio_pin`** | The BCM number of the GPIO pin used to communicate with the device.
 
+### Controller devices
+
 #### controller.GPIOSwitch
 
 This device uses one GPIO to control some other devices probably via a relay board.
@@ -172,33 +205,12 @@ these power switches as free USB ports you have. The individual devices are
 identified by an index or an ID, and the sockets are identified by the port
 number.
 
-Only root can control USB devices by default, and it is not recommended to run
-TerraPi as root. You can create a user for TerraPi and put it in a group allowed
-to control Energenie devices:
-
-```
-pi@raspberrypi:~ $ sudo groupadd sispmctl
-pi@raspberrypi:~ $ sudo useradd terrapi
-pi@raspberrypi:~ $ sudo passwd terrapi
-Enter new UNIX password:
-Retype new UNIX password:
-passwd: password updated successfully
-pi@raspberrypi:~ $ sudo usermod -a -G sispmctl terrapi
-```
-
-After this, you have to copy the resources/60-sispmctl.rules (which I copied
-from the [PySisPM repo](https://github.com/xypron/pysispm)) to
-/etc/udev/rules.d, and reconfigure udev:
-
-```
-pi@raspberrypi:~/terrapi/ $ sudo cp resources/60-sispmctl.rules /etc/udev/rules.d/
-pi@raspberrypi:~/terrapi/ $ sudo udevadm control --reload-rulesh
-```
-
 Setting | Description
 --- | ---
 `device` | Either an integer (device index), or a string (device ID, e.g. '01:01:55:34:8e') that identifies the particular power switch to use.<br />Default value: 0 (the first power switch connected to the system).
 **`port`** | The number of the socket to control. Sockets are labeled with these numbers on the actual device.
+
+### Controlled devices
 
 #### light.Lightswitch
 
@@ -220,16 +232,6 @@ Setting | Description
 --- | ---
 **`sensor`** | The `name` of the temperature sensor you want to use.
 **`temperatures`** | A list of `time` and `temperature` pairs, so you can specify acceptable temperature ranges for time ranges. Time ranges can be open-ended, so for example the following means temperature should be between 28 and 30 Celsius from 12:00 to 20:00, and between 20 and 25 Celsius in the remaining time:<br />`temperatures:`<br />&nbsp;`-time: "-12"`<br />&nbsp;&nbsp;`temperature: 28-30`<br />&nbsp;`-time: "20-"`<br />&nbsp;&nbsp;`temperature: "20-25"`. The time ranges should cover a whole day (24 hours)!
-
-Dashboard
-----
-
-The `terrapi-dashboard` script generates interactive graphs from measurements.
-You will need to [install Dash](https://dash.plot.ly/installation) to use it.
-
-This script is completely decoupled from the TerraPi daemon, it just uses the
-same database. The databse connection string is read from the TerraPi
-configuration.
 
 Todo
 ----
