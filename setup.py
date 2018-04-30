@@ -5,6 +5,7 @@
 import os
 import platform
 import shutil
+import sys
 from subprocess import call
 
 from distutils.cmd import Command
@@ -59,6 +60,12 @@ def read_file(filename):
     """Returns the content of file named filename."""
     with open(filename, 'r') as f:
         return f.read()
+
+def console_scripts():
+    s - ['terrapi = TerraPi.terrapi:main']
+    if '--without-dashboard' not in sys.argv:
+        s.append('terrapi-dashboard = TerraPi.dashboard:main [dashboard]')
+    return s
 
 
 setup(
@@ -125,10 +132,7 @@ setup(
         '': ['conf/config-sample.yaml', 'data/.db_placeholder'],
     },
     entry_points={
-        'console_scripts': [
-            'terrapi = TerraPi.terrapi:main',
-            'terrapi-dashboard = TerraPi.dashboard:main [dashboard]',
-        ]
+        'console_scripts': console_scripts(),
     },
     python_requires='>=3.5',
 )
