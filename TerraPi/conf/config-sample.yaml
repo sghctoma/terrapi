@@ -8,8 +8,7 @@ controlled_devices:
       on_schedule: "*/2 * * * *"
       off_schedule: "*/3 * * * *"
       controller:
-          type: controller.GPIOSwitch
-          gpio_pin: 13
+          type: dummy.DummySwitch
 
     - type: thermostat.Thermostat
       sensor: random
@@ -21,8 +20,7 @@ controlled_devices:
           - time: "16-"
             temperature: "20-22"
       controller:
-          type: controller.GPIOSwitch
-          gpio_pin: 14
+          type: dummy.DummySwitch
 
 logging:
     version: 1
