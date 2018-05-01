@@ -7,7 +7,6 @@ import yaml
 from logging.config import dictConfig
 from os.path import expanduser, isfile
 
-import RPi.GPIO as GPIO
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 from .db import Measurement, create_sessionmaker
@@ -43,7 +42,6 @@ class TerrapiApp():
     
     def main(self):
         self.scheduler.start()
-        GPIO.cleanup()
 
 
 def main():
