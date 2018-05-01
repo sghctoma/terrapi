@@ -194,7 +194,7 @@ Setting | Description
 
 ### Controller devices
 
-#### controller.GPIOSwitch
+#### gpio.GPIOSwitch
 
 This device uses one GPIO to control some other devices probably via a relay board.
 
@@ -203,7 +203,7 @@ Setting | Description
 **`gpio_pin`** | The BCM number of the GPIO pin used to communicate with the device.
 `reversed` | `True` if the device is off when GPIO is high, `False` otherwise.<br />The default is `True`.
 
-#### controller.EnergenieUSBSwitch
+#### energenie.EnergenieUSBSwitch
 
 This device uses an Energenie EG-PMS or EG-PM2 USB programmable power switch to
 control some other devices (e.g. lamps, heaters, etc.). You can have as many of
