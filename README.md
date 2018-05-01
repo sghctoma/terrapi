@@ -67,8 +67,9 @@ pi@raspberrypi:~ $ python3 setup.py install --without-dashboard
 ```
 
 You can run TerraPi right after installing, but the provided sample
-configuration only spits random values into the database, and switches a GPIO on
-and off. You will learn how to set up your sensors and other devices in the
+configuration only spits random values into the database, and uses a dummy
+switch for a thermostat and a light that only logs status changes. You will
+learn how to set up your sensors and other devices in the
 [Configuration](#configuration) section.
 
 ### Additional steps for databases other than SQLite
@@ -104,10 +105,16 @@ pi@raspberrypi:~ $ sudo python3 setup.py install_rules
 ```
 
 After this you will still need to add the user you plan to run TerraPi with to
-the `sispmctl` group:
+the `sispmctl` group. On Linux:
 
 ```
 pi@raspberrypi:~ $ sudo usermod -a -G sispmctl terrapi
+```
+
+And on FreeBSD:
+
+```
+pi@raspberrypi:~ $ sudo pw groupmod sispmctl -m terrapi
 ```
 
 
@@ -162,8 +169,7 @@ Setting | Description
 
 Setting | Description
 --- | ---
-**`controller`** | What kind of *Controller Device* to use. Currently only the `controller.GPIOSwitch` is implemented, which simply uses a GPIO to control a device (probably through a relay).
-
+**`controller`** | What kind of *Controller Device* to use.
 ### Sensor devices
 
 #### bme280.BME280
