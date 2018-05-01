@@ -28,6 +28,6 @@ class BME280(SensorDevice):
         data = bme280.sample(self._bus, self._address, self._calibration_params)
         return [
             (SensorType.temperature, data.temperature),
-	    (SensorType.humidity, data.humidity),
-	    (SensorType.pressure, data.pressure)
-	]
+            (SensorType.humidity, data.humidity),
+            (SensorType.pressure, data.pressure)
+        ]

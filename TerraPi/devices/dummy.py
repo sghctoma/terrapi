@@ -18,8 +18,8 @@ class RandomTemperatureHumidity(SensorDevice):
     def _measure(self):
         return [
             (SensorType.temperature, random.randint(18, 50)),
-	    (SensorType.humidity, random.randint(30, 90)),
-	]
+            (SensorType.humidity, random.randint(30, 90)),
+        ]
 
 class DummySwitch(ControllerDevice):
     """

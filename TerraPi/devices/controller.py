@@ -70,10 +70,10 @@ class EnergenieUSBSwitch(ControllerDevice):
                 self._port, self._device))
 
     def control(self, value):
-	if value == 'on':
-	    sispm.switchon(self._device, self._port)
-	elif value == 'off':
-	    sispm.switchoff(self._device, self._port)
-	else:
-	    logging.warn("{} received invalid control value ({}).".format(
-		self.name, value))
+        if value == 'on':
+            sispm.switchon(self._device, self._port)
+        elif value == 'off':
+            sispm.switchoff(self._device, self._port)
+        else:
+            logging.warn("{} received invalid control value ({}).".format(
+                self.name, value))
