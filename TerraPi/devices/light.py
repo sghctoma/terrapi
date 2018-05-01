@@ -1,9 +1,9 @@
 import logging
 
-from .device import Device
+from .device import ControlledDevice
 
 
-class Lightswitch(Device):
+class Lightswitch(ControlledDevice):
     """
     Light on-off switch implementation.
 
@@ -12,8 +12,6 @@ class Lightswitch(Device):
     """
     def __init__(self, app, config):
         super().__init__(app, config)
-        self._controller = Device.create_from_config(self._app,
-                config['controller'])
         self._setup_schedule(config)
 
     def _setup_schedule(self, config):
@@ -26,8 +24,8 @@ class Lightswitch(Device):
 
     def _switch_off(self):
         logging.info("Switching off light {}.".format(self.name))
-        self._controller.switch_off()
+        self._controller.control('off')
 
     def _switch_on(self):
         logging.info("Switching on light {}.".format(self.name))
-        self._controller.switch_on()
+        self._controller.control('on')

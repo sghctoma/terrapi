@@ -56,6 +56,7 @@ class Device():
         :param config: The config that describes the device
         """
         device = None
+        clazz = None
         try:
             m,c = config.get('type','').split('.')
             clazz = getattr(importlib.import_module('TerraPi.devices.'+m), c)
@@ -77,11 +78,12 @@ class Device():
         if clazz:
             try:
                 device = clazz(app, config)
-            except:
+            except Exception as e:
                 logging.error("Could not create device instance from {}: {}".
                         format(config, e))
 
         return device
+
 
 class SensorDevice(Device, ABC):
     """
@@ -178,7 +180,7 @@ class SensorDevice(Device, ABC):
             session.close()
 
     @abstractmethod
-    def _measure():
+    def _measure(self):
         """
         Returns measurements from device. Should be overriden in subclasses.
 
@@ -186,3 +188,45 @@ class SensorDevice(Device, ABC):
         """
         pass
 
+
+class ControllerDevice(Device, ABC):
+    """
+    Abstract class that represents a controller device.
+
+    :config controller: The controller device to use
+    """
+
+    def __init__(self, app, config):
+        """
+        Constructs a new 'ControllerDevice' object.
+
+        :param app: The TerrapiApp instance
+        :param config: The config that describes the device
+        """
+        super().__init__(app, config)
+
+    @abstractmethod
+    def control(self, value):
+        """Does the actual controlling. Should be overridden in subclasses."""
+        pass
+
+
+class ControlledDevice(Device):
+    """
+     Class that represents a controlled device.
+
+    :config controller: The controller device to use
+    """
+
+    def __init__(self, app, config):
+        """
+        Constructs a new 'ControlledDevice' object.
+
+        :param app: The TerrapiApp instance
+        :param config: The config that describes the device
+        """
+        super().__init__(app, config)
+        self._controller = Device.create_from_config(self._app,
+                config['controller'])
+        if not self._controller:
+            raise ValueError("Invalid controller for {}.".format(self.name))

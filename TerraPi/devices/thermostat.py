@@ -2,15 +2,13 @@ import logging
 from datetime import datetime
 
 from ..db import SensorType
-from .device import Device
+from .device import ControlledDevice
 
 
-class Thermostat(Device):
+class Thermostat(ControlledDevice):
     def __init__(self, app, config):
         super().__init__(app, config)
         self._setup_temp_ranges(config)
-        self._controller = Device.create_from_config(self._app,
-                config['controller'])
         s = config['sensor']
         sensors = [d for d in self._app.sensor_devices if d.name==s]
         if not sensors:
@@ -42,8 +40,8 @@ class Thermostat(Device):
         if temperature < tmin:
             logging.info('Switching on thermostat {} at {:.2f}C.'.format(
                 self.name, temperature))
-            self._controller.switch_on()
+            self._controller.control('on')
         if temperature > tmax:
             logging.info('Switching off thermostat {} at {:.2f}C.'.format(
                 self.name, temperature))
-            self._controller.switch_off()
+            self._controller.control('off')

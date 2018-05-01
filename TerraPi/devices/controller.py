@@ -1,10 +1,11 @@
+import logging
 import RPi.GPIO as GPIO
 import sispm
 
-from .device import Device
+from .device import ControllerDevice
 
 
-class GPIOSwitch(Device):
+class GPIOSwitch(ControllerDevice):
     """
     A switch that uses one GPIO pin to control the actual device (
     e.g. a relay).
@@ -24,13 +25,16 @@ class GPIOSwitch(Device):
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self._gpio_pin, GPIO.OUT, initial=self._off_state)
 
-    def switch_on(self):
-        GPIO.output(self._gpio_pin, self._on_state)
+    def control(self, value):
+        if value == 'on':
+            GPIO.output(self._gpio_pin, self._on_state)
+        elif value == 'off':
+            GPIO.output(self._gpio_pin, self._off_state)
+        else:
+            logging.warn("{} received invalid control value ({}).".format(
+                self.name, value))
 
-    def switch_off(self):
-        GPIO.output(self._gpio_pin, self._off_state)
-
-class EnergenieUSBSwitch(Device):
+class EnergenieUSBSwitch(ControllerDevice):
     """
     A switch that uses the Energenie EG-PMS and EG-PM2 USB-controllable power
     switches. You can have as many of these power switches as free USB ports you
@@ -65,8 +69,11 @@ class EnergenieUSBSwitch(Device):
             raise IndexError("There is no port {} on device {}".format(
                 self._port, self._device))
 
-    def switch_on(self):
-        sispm.switchon(self._device, self._port)
-
-    def switch_off(self):
-        sispm.switchon(self._device, self._port)
+    def control(self, value):
+	if value == 'on':
+	    sispm.switchon(self._device, self._port)
+	elif value == 'off':
+	    sispm.switchoff(self._device, self._port)
+	else:
+	    logging.warn("{} received invalid control value ({}).".format(
+		self.name, value))
