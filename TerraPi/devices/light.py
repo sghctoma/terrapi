@@ -17,9 +17,9 @@ class Lightswitch(ControlledDevice):
     def _setup_schedule(self, config):
         sched_on = config['on_schedule']
         sched_off = config['off_schedule']
-        self._app.scheduler.add_job(self._switch_on,
+        job_on = self._app.scheduler.add_job(self._switch_on,
                 trigger=self._parse_trigger(sched_on))
-        self._app.scheduler.add_job(self._switch_off,
+        job_off = self._app.scheduler.add_job(self._switch_off,
                 trigger=self._parse_trigger(sched_off))
 
     def _switch_off(self):

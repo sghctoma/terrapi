@@ -226,7 +226,9 @@ class ControlledDevice(Device):
         :param config: The config that describes the device
         """
         super().__init__(app, config)
-        self._controller = Device.create_from_config(self._app,
-                config['controller'])
-        if not self._controller:
-            raise ValueError("Invalid controller for {}.".format(self.name))
+        controller_name = config['controller']
+        ctrls = [d for d in app.controller_devices if d.name==controller_name]
+        if not ctrls:
+            raise ValueError("Invalid controller {} for {}.".format(
+                controller_name, eself.name))
+        self._controller = ctrls[0]

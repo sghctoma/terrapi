@@ -29,8 +29,13 @@ class TerrapiApp():
 
         confs = config.get('sensor_devices', [])
         self.sensor_devices = [
-                SensorDevice.create_from_config(self, c) for c in confs]
+                Device.create_from_config(self, c) for c in confs]
         self.sensor_devices = list(filter(None, self.sensor_devices))
+
+        confs = config.get('controller_devices', [])
+        self.controller_devices = [
+                Device.create_from_config(self, c) for c in confs]
+        self.controller_devices = list(filter(None, self.controller_devices))
 
         confs = config.get('controlled_devices', [])
         self.controlled_devices = [
