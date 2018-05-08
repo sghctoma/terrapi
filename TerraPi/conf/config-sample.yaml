@@ -5,16 +5,15 @@ sensor_devices:
 
 controller_devices:
     - type: dummy.DummySwitch
-      name: switch1
+      name: dummy_switch
 
-    - type: dummy.DummySwitch
-      name: switch2
-      
 controlled_devices:
     - type: light.Lightswitch
       on_schedule: "*/2 * * * *"
       off_schedule: "*/3 * * * *"
-      controller: switch1
+      controller:
+          name: dummy_switch
+          channel: 1
 
     - type: thermostat.Thermostat
       sensor: random
@@ -25,7 +24,9 @@ controlled_devices:
             temperature: "25-30"
           - time: "16-"
             temperature: "20-22"
-      controller: switch2
+      controller:
+          name: dummy_switch
+          channel: 2
 
 logging:
     version: 1

@@ -40,8 +40,8 @@ class Thermostat(ControlledDevice):
         if temperature < tmin:
             logging.info('Switching on thermostat {} at {:.2f}C.'.format(
                 self.name, temperature))
-            self._controller.control('on')
+            self._controller.control(self._channel, 'on')
         if temperature > tmax:
             logging.info('Switching off thermostat {} at {:.2f}C.'.format(
                 self.name, temperature))
-            self._controller.control('off')
+            self._controller.control(self._channel, 'off')

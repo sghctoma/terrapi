@@ -24,8 +24,8 @@ class Lightswitch(ControlledDevice):
 
     def _switch_off(self):
         logging.info("Switching off light {}.".format(self.name))
-        self._controller.control('off')
+        self._controller.control(self._channel, 'off')
 
     def _switch_on(self):
         logging.info("Switching on light {}.".format(self.name))
-        self._controller.control('on')
+        self._controller.control(self._channel, 'on')

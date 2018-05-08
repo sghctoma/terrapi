@@ -33,7 +33,7 @@ class Device():
         self.description = config.get('description')
 
         self._app = app
-        logging.info('Created {} device with the name {}.'.format(
+        logging.info('Creating {} device with the name {}.'.format(
             classname, self.name))
 
     def _parse_trigger(self, schedule):
@@ -205,9 +205,23 @@ class ControllerDevice(Device, ABC):
         """
         super().__init__(app, config)
 
+    def init_channel(self, channel):
+        """
+        Should be overriden if channels need to be setup before using them.
+        (Like GPIO.setup(... )
+        """
+        pass
+
     @abstractmethod
-    def control(self, value):
-        """Does the actual controlling. Should be overridden in subclasses."""
+    def control(self, channel, value):
+        """
+        Does the actual controlling. Should be overridden in subclasses.
+        
+        :param channel: Which channel of the controller to use. (e.g. a GPIO pin
+            number, or an Energenie port number)
+        :param value: The new value (e.g. 'on' or 'off', or a percentage for PWM
+            controllers.)
+        """
         pass
 
 
@@ -226,9 +240,11 @@ class ControlledDevice(Device):
         :param config: The config that describes the device
         """
         super().__init__(app, config)
-        controller_name = config['controller']
+        controller_name = config['controller']['name']
         ctrls = [d for d in app.controller_devices if d.name==controller_name]
         if not ctrls:
             raise ValueError("Invalid controller {} for {}.".format(
-                controller_name, eself.name))
+                controller_name, self.name))
         self._controller = ctrls[0]
+        self._channel = config['controller']['channel']
+        self._controller.init_channel(self._channel)

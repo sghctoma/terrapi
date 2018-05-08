@@ -29,11 +29,13 @@ class DummySwitch(ControllerDevice):
     def __init__(self, app, config):
         super().__init__(app, config)
 
-    def control(self, value):
+    def control(self, channel, value):
         if value == 'on':
-            logging.info("Switching {} on.".format(self.name))
+            logging.info("Switching {} channel {} on.".format(
+                self.name, channel))
         elif value == 'off':
-            logging.info("Switching {} off.".format(self.name))
+            logging.info("Switching {} channel {} off.".format(
+                self.name, channel))
         else:
             logging.warn("{} received invalid control value ({}).".format(
                 self.name, value))

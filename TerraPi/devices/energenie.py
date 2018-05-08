@@ -13,11 +13,9 @@ class EnergenieUSBSwitch(ControllerDevice):
 
     :config device: Device index (0 for first power switch), or device ID (e.g. 
         '01:01:55:34:8e').
-    :config port: Port number (1-4 for EG-PM2)
     """
     def __init__(self, app, config):
         super().__init__(app, config)
-        self._port = config['port']
         
         dev = config.get('device', 0)
         devices = sispm.connect()
@@ -33,17 +31,18 @@ class EnergenieUSBSwitch(ControllerDevice):
                 raise ValueError("Invalid device ID!")
             self._device = d[0]
 
+    def init_channel(self, channel):
         minport = sispm.getminport(self._device)
         maxport = sispm.getmaxport(self._device)
-        if self._port < minport or self._port > maxport:
+        if channel < minport or channel > maxport:
             raise IndexError("There is no port {} on device {}".format(
-                self._port, self._device))
+                channel, self._device)
 
-    def control(self, value):
+    def control(self, channel, value):
         if value == 'on':
-            sispm.switchon(self._device, self._port)
+            sispm.switchon(self._device, channel)
         elif value == 'off':
-            sispm.switchoff(self._device, self._port)
+            sispm.switchoff(self._device, channel)
         else:
             logging.warn("{} received invalid control value ({}).".format(
                 self.name, value))
