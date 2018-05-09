@@ -36,7 +36,7 @@ class EnergenieUSBSwitch(ControllerDevice):
         maxport = sispm.getmaxport(self._device)
         if channel < minport or channel > maxport:
             raise IndexError("There is no port {} on device {}".format(
-                channel, self._device)
+                channel, self._device))
 
     def control(self, channel, value):
         if value == 'on':
